@@ -18,8 +18,7 @@
 <div>🟩 disponible — 🟥 vendu</div>
 
 <script>
-const SHEET_ID = "1SPveQ_n0mnJWkhf8KCI7_HA2-6EIzkuCsSL1NElKGIk"; // <- remplace ici
-const SHEET_URL = `https://docs.google.com/spreadsheets/d/$1SPveQ_n0mnJWkhf8KCI7_HA2-6EIzkuCsSL1NElKGIk/gviz/tq?tqx=out:json&sheet=zines`;
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLHFgqtn4pqrqX8Qov5nQUb27_RT3JoTNIRu8zyulacrIZY6WAHoNditaWcwMFX0VthE-HDgwrRDcs/gviz/tq?tqx=out:json&sheet=Feuille%201";
 
 async function loadGrid() {
   const res = await fetch(SHEET_URL);
@@ -30,7 +29,7 @@ async function loadGrid() {
 
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-  rows.slice(1).forEach(r => {
+  rows.forEach(r => {
     const id = r[0];
     const numero = r[1];
     const link = r[2];
@@ -38,14 +37,13 @@ async function loadGrid() {
 
     const cell = document.createElement("div");
     cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
-    cell.textContent = numero; // <-- affiche le numéro du zine
+    cell.textContent = numero || "?";  // Affiche le numéro ou "?" si vide
     if (status !== "vendu") cell.onclick = () => window.open(link, "_blank");
 
     grid.appendChild(cell);
   });
 }
 
-// premier chargement et rafraîchissement toutes les 8s
 loadGrid();
 setInterval(loadGrid, 8000);
 </script>
