@@ -18,7 +18,7 @@
 <div>🟩 disponible — 🟥 vendu</div>
 
 <script>
-// ID de ton Google Sheet classique publié
+// Ton Google Sheet classique publié (publié sur le web)
 const SHEET_ID = "1YwOg6ddIx7WuE75vKRRlhZGaSzGBVDLtzQeFRHKEIXc";
 const SHEET_URL = `https://opensheet.elk.sh/${SHEET_ID}/Feuille 1`;
 
@@ -31,7 +31,6 @@ async function loadGrid() {
     grid.innerHTML = "";
 
     rows.forEach(r => {
-      const id = r.id || r[0];
       const numero = r.numero || r[1];
       const link = r.paylink || r[2];
       const status = (r.status || r[3] || "").toLowerCase();
