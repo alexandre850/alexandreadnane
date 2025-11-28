@@ -42,19 +42,19 @@ async function fetchSheet() {
 function buildGrid(rows) {
   const grid = document.getElementById("grid");
   grid.innerHTML = "";
-  rows.forEach(r => {
+  rows.slice(1).forEach(r => {
     const id = r[0];
-    const paylink = r[2] || "#";
-    const status = (r[3]||"").toString().toLowerCase();
-    const cell = document.createElement("div");
-    cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
-    cell.textContent = id;
-    if (status !== "vendu") {
-      cell.addEventListener("click", (e) => {
-        // ouvrir le paylink dans un nouvel onglet
-        if (!paylink || paylink === "#") { alert("Lien de paiement non configuré pour cet exemplaire."); return; }
-        window.open(paylink, "_blank");
-      });
+  const numero = r[1];
+  const link = r[2];
+  const status = (r[3]||"").toLowerCase();;
+    
+  const cell = document.createElement("div");
+  cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
+  cell.textContent = numero;  // affiche 1/200, 2/200
+  if (status !== "vendu") cell.onclick = () => window.open(link, "_blank");
+
+  grid.appendChild(cell);
+});
     }
     grid.appendChild(cell);
   });
