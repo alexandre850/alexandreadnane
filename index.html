@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Choisis ton zine</title>
+<title>choose your print (:</title>
 <style>
   body { font-family: Helvetica; padding: 20px; text-align: center; }
   .grid { display: grid; grid-template-columns: repeat(20, 60px); grid-gap: 5px; justify-content: center; margin-top: 20px; }
@@ -13,52 +13,60 @@
     align-items: center;
     justify-content: center;
     font-weight: bold;
-    border-radius: 50%;
+    border-radius: 50%; /* cercle */
     cursor: pointer;
     transition: 0.2s;
     font-size: 12px;
   }
-  .avail { background: #000; color: #fff; }
-  .sold { background: transparent; color: rgba(0,0,0,0.6); cursor: not-allowed; }
-  .cell:hover { transform: scale(1.1); }
+  .avail {
+    background: #000; /* cercle noir */
+    color: #fff;
+  }
+  .sold {
+    background: transparent; /* plus de fond */
+    color: rgba(0,0,0,0.6); /* numéro transparent à 60% */
+    cursor: not-allowed;
+  }
+  .cell:hover {
+    transform: scale(1.1);
+  }
 </style>
 </head>
 <body>
-<h2>Choisis ton zine</h2>
+<h2>choose your print (:</h2>
 <div class="grid" id="grid"></div>
 
 <script>
-// Paramètres
+// Total de zines
 const totalZines = 200;
-const workerURL = "https://monworker.alexandre-67f.workers.dev";
 
-// Fonction pour choisir le pid Payrexx (exemple alternance)
-function getPid(i) {
-  return (i % 2 === 0) ? "9708a08e" : "d0fbc9e0";
+// Liens
+const links = [
+  "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e",
+  "https://alexandreadnane.payrexx.com/fr/pay?pid=d0fbc9e0"
+];
+const defaultLink = "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e";
+
+// Zines vendus
+const soldIndexes = [1]; // index 1 = 2ème zine
+
+const grid = document.getElementById("grid");
+
+for (let i = 0; i < totalZines; i++) {
+  const numero = `${i+1}/200`;
+  const cell = document.createElement("div");
+  const isSold = soldIndexes.includes(i);
+  cell.className = "cell " + (isSold ? "sold" : "avail");
+  cell.textContent = numero;
+
+  if (!isSold) {
+    const link = links[i] || defaultLink;
+    cell.onclick = () => window.open(link, "_blank");
+  }
+
+  grid.appendChild(cell);
 }
-
-// Crée la grille
-fetch(`${workerURL}/sold.json`)
-  .then(r => r.json())
-  .then(soldList => {
-    const grid = document.getElementById("grid");
-    for (let i = 1; i <= totalZines; i++) {
-      const id = `ZINE_${i}`;
-      const sold = soldList.includes(id);
-
-      const cell = document.createElement("div");
-      cell.className = "cell " + (sold ? "sold" : "avail");
-      cell.textContent = `${i}/200`;
-
-      if (!sold) {
-        const pid = getPid(i);
-        const link = `https://alexandreadnane.payrexx.com/fr/pay?pid=${9708a08e}&referenceId=${id}`;
-        cell.onclick = () => window.open(link, "_blank");
-      }
-
-      grid.appendChild(cell);
-    }
-  });
 </script>
+
 </body>
 </html>
