@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>a short story about a feeling i had — sélection</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  body { font-family: Arial, sans-serif; background:#fff; padding:20px; text-align:center; }
+  h2 { margin-bottom:12px; }
+  .grid { display:grid; grid-template-columns: repeat(20, 44px); grid-gap:8px; justify-content:center; }
+  .cell {
+    width:44px; height:44px; border-radius:6px; display:flex; align-items:center; justify-content:center;
+    cursor:pointer; font-size:11px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    transition: transform .08s;
+  }
+  .cell:hover { transform: translateY(-2px); }
+  .avail { background:#66d46a; color:#000; }
+  .sold { background:#dd4444; color:#fff; cursor:not-allowed; opacity:0.95; }
+  .loading { opacity:0.6; }
+  .legend { margin-top:12px; font-size:14px; }
+</style>
+</head>
+<body>
+  <h2>a short story about a feeling i had — choisis ton exemplaire</h2>
+  <div id="grid" class="grid"></div>
+  <div class="legend">🟩 disponible — 🟥 vendu</div>
+
+<script>
+const SHEET_ID = "https://docs.google.com/spreadsheets/d/1SPveQ_n0mnJWkhf8KCI7_HA2-6EIzkuCsSL1NElKGIk/edit?gid=0#gid=0"
+const SHEET_JSON_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Feuille%201`;
+
+async function fetchSheet() {
+  const res = await fetch(SHEET_JSON_URL);
+  const text = await res.text();
+  // Google wraps JSON in a callback : "/*O_o*/\ngoogle.visualization.Query.setResponse(...);"
+  const jsonText = text.replace(/^[^\(]*\(|\);?$/g, "");
+  const data = JSON.parse(jsonText);
+  const rows = data.table.rows.map(r => r.c.map(cell => cell ? cell.v : ""));
+  return rows; // array of rows: [ [id, numero, paylink, status], ... ]
+}
+
+function buildGrid(rows) {
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+  rows.forEach(r => {
+    const id = r[0];
+    const paylink = r[2] || "#";
+    const status = (r[3]||"").toString().toLowerCase();
+    const cell = document.createElement("div");
+    cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
+    cell.textContent = id;
+    if (status !== "vendu") {
+      cell.addEventListener("click", (e) => {
+        // ouvrir le paylink dans un nouvel onglet
+        if (!paylink || paylink === "#") { alert("Lien de paiement non configuré pour cet exemplaire."); return; }
+        window.open(paylink, "_blank");
+      });
+    }
+    grid.appendChild(cell);
+  });
+}
+
+async function updateLoop() {
+  try {
+    const rows = await fetchSheet();
+    buildGrid(rows);
+  } catch (err) {
+    console.error("Erreur fetch sheet:", err);
+  }
+}
+
+// premier chargement, puis refresh toutes les 8s
+updateLoop();
+setInterval(updateLoop, 8000);
+</script>
+</body>
+</html>
+
+
+
