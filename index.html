@@ -40,15 +40,15 @@
 // Total de zines
 const totalZines = 200;
 
-// Tableau des liens pour chaque zine (exemple : 2 liens différents, le reste = même lien par défaut)
+// Liens
 const links = [
   "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e",
   "https://alexandreadnane.payrexx.com/fr/pay?pid=d0fbc9e0"
 ];
 const defaultLink = "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e";
 
-// Indices des zines déjà vendus
-const soldIndexes = [1]; // 2ème zine vendu
+// Zines vendus
+const soldIndexes = [1]; // index 1 = 2ème zine
 
 const grid = document.getElementById("grid");
 
@@ -66,3 +66,7 @@ for (let i = 0; i < totalZines; i++) {
 
   grid.appendChild(cell);
 }
+</script>
+
+</body>
+</html>
