@@ -5,10 +5,10 @@
 <title>Test grille 2 zines</title>
 <style>
   body { font-family: Arial; padding: 20px; text-align: center; }
-  .grid { display: grid; grid-template-columns: repeat(2, 80px); grid-gap: 10px; justify-content:center; margin-top:20px;}
-  .cell { width:80px; height:80px; display:flex; align-items:center; justify-content:center; font-weight:bold; border-radius:5px; cursor:pointer; transition:0.2s; font-size:14px; }
-  .avail { background:#66d46a; color:#000; }
-  .sold { background:#dd4444; color:#fff; cursor:not-allowed; }
+  .grid { display: grid; grid-template-columns: repeat(2, 80px); grid-gap: 10px; justify-content: center; margin-top: 20px; }
+  .cell { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 14px; }
+  .avail { background: #66d46a; color: #000; }
+  .sold { background: #dd4444; color: #fff; cursor: not-allowed; }
   .cell:hover { transform: scale(1.05); }
 </style>
 </head>
@@ -18,35 +18,40 @@
 <div>🟩 disponible — 🟥 vendu</div>
 
 <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQLHFgqtn4pqrqX8Qov5nQUb27_RT3JoTNIRu8zyulacrIZY6WAHoNditaWcwMFX0VthE-HDgwrRDcs/gviz/tq?tqx=out:json&sheet=Feuille%201";
+// ID de ton Google Sheet classique publié
+const SHEET_ID = "1YwOg6ddIx7WuE75vKRRlhZGaSzGBVDLtzQeFRHKEIXc";
+const SHEET_URL = `https://opensheet.elk.sh/${SHEET_ID}/Feuille 1`;
 
 async function loadGrid() {
-  const res = await fetch(SHEET_URL);
-  const text = await res.text();
-  const jsonText = text.replace(/^[^\(]*\(|\);?$/g,"");
-  const data = JSON.parse(jsonText);
-  const rows = data.table.rows.map(r => r.c.map(cell => cell ? cell.v : ""));
+  try {
+    const res = await fetch(SHEET_URL);
+    const rows = await res.json();
 
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
-  rows.forEach(r => {
-    const id = r[0];
-    const numero = r[1];
-    const link = r[2];
-    const status = (r[3]||"").toLowerCase();
+    const grid = document.getElementById("grid");
+    grid.innerHTML = "";
 
-    const cell = document.createElement("div");
-    cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
-    cell.textContent = numero || "?";  // Affiche le numéro ou "?" si vide
-    if (status !== "vendu") cell.onclick = () => window.open(link, "_blank");
+    rows.forEach(r => {
+      const id = r.id || r[0];
+      const numero = r.numero || r[1];
+      const link = r.paylink || r[2];
+      const status = (r.status || r[3] || "").toLowerCase();
 
-    grid.appendChild(cell);
-  });
+      const cell = document.createElement("div");
+      cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
+      cell.textContent = numero || "?"; // Affiche le numéro
+      if (status !== "vendu" && link) cell.onclick = () => window.open(link, "_blank");
+
+      grid.appendChild(cell);
+    });
+  } catch (err) {
+    console.error("Erreur en chargeant le Sheet :", err);
+    document.getElementById("grid").textContent = "Impossible de charger les données.";
+  }
 }
 
+// Chargement initial et rafraîchissement toutes les 8 secondes
 loadGrid();
 setInterval(loadGrid, 8000);
 </script>
 </body>
 </html>
-
