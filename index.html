@@ -1,72 +1,68 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="fr">
 <head>
-<meta charset="utf-8">
-<title>choose your print (:</title>
+<meta charset="UTF-8">
+<title>Choisis ton zine</title>
 <style>
-  body { font-family: Helvetica; padding: 20px; text-align: center; }
-  .grid { display: grid; grid-template-columns: repeat(20, 60px); grid-gap: 5px; justify-content: center; margin-top: 20px; }
-  .cell {
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    border-radius: 50%; /* cercle */
-    cursor: pointer;
-    transition: 0.2s;
-    font-size: 12px;
-  }
-  .avail {
-    background: #000; /* cercle noir */
-    color: #fff;
-  }
-  .sold {
-    background: transparent; /* plus de fond */
-    color: rgba(0,0,0,0.6); /* numéro transparent à 60% */
-    cursor: not-allowed;
-  }
-  .cell:hover {
-    transform: scale(1.1);
-  }
+body { font-family: Helvetica, sans-serif; padding: 20px; text-align: center; }
+.grid { display: grid; grid-template-columns: repeat(20, 60px); grid-gap: 5px; justify-content: center; margin-top: 20px; }
+.cell {
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+  font-size: 12px;
+}
+.avail { background: #000; color: #fff; }
+.sold { background: transparent; color: rgba(0,0,0,0.6); cursor: not-allowed; border: none; }
+.cell:hover { transform: scale(1.1); }
 </style>
 </head>
 <body>
-<h2>choose your print (:</h2>
+<h2>Choisis ton zine :</h2>
 <div class="grid" id="grid"></div>
 
 <script>
-// Total de zines
-const totalZines = 200;
+// URL de ton Worker Cloudflare
+const WORKER_URL = "https://nom-de-ton-worker.workers.dev";
 
-// Liens
-const links = [
-  "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e",
-  "https://alexandreadnane.payrexx.com/fr/pay?pid=d0fbc9e0"
+// Total zines
+const TOTAL_ZINES = 200;
+
+// Tableau des PID Payrexx (exemple : alterner deux liens, tu peux adapter)
+const PIDS = [
+  "9708a08e", // premier lien
+  "d0fbc9e0"  // deuxième lien
 ];
-const defaultLink = "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e";
+const DEFAULT_PID = PIDS[0];
 
-// Zines vendus
-const soldIndexes = [1]; // index 1 = 2ème zine
+fetch(`${WORKER_URL}/sold.json`)
+  .then(r => r.json())
+  .then(soldList => {
+    const grid = document.getElementById("grid");
 
-const grid = document.getElementById("grid");
+    for (let i = 1; i <= TOTAL_ZINES; i++) {
+      const id = `ZINE_${i}`;
+      const sold = soldList.includes(id);
 
-for (let i = 0; i < totalZines; i++) {
-  const numero = `${i+1}/200`;
-  const cell = document.createElement("div");
-  const isSold = soldIndexes.includes(i);
-  cell.className = "cell " + (isSold ? "sold" : "avail");
-  cell.textContent = numero;
+      const cell = document.createElement("div");
+      cell.className = "cell " + (sold ? "sold" : "avail");
+      cell.textContent = `${i}/200`;
 
-  if (!isSold) {
-    const link = links[i] || defaultLink;
-    cell.onclick = () => window.open(link, "_blank");
-  }
+      if (!sold) {
+        const pid = PIDS[(i-1) % PIDS.length] || DEFAULT_PID;
+        cell.onclick = () =>
+          window.open(`https://alexandreadnane.payrexx.com/fr/pay?pid=${pid}&referenceId=${id}`);
+      }
 
-  grid.appendChild(cell);
-}
+      grid.appendChild(cell);
+    }
+  });
 </script>
-
 </body>
 </html>
