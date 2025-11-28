@@ -2,55 +2,53 @@
 <html>
 <head>
 <meta charset="utf-8">
-<title>Test grille 2 zines</title>
+<title>Grille 200 Zines</title>
 <style>
   body { font-family: Arial; padding: 20px; text-align: center; }
-  .grid { display: grid; grid-template-columns: repeat(2, 80px); grid-gap: 10px; justify-content: center; margin-top: 20px; }
-  .cell { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 14px; }
+  .grid { display: grid; grid-template-columns: repeat(20, 60px); grid-gap: 5px; justify-content: center; margin-top: 20px; }
+  .cell { width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; font-weight: bold; border-radius: 5px; cursor: pointer; transition: 0.2s; font-size: 12px; }
   .avail { background: #66d46a; color: #000; }
   .sold { background: #dd4444; color: #fff; cursor: not-allowed; }
-  .cell:hover { transform: scale(1.05); }
+  .cell:hover { transform: scale(1.1); }
 </style>
 </head>
 <body>
-<h3>Test grille — 2 zines</h3>
-<div id="grid" class="grid"></div>
+<h2>Grille — 200 Zines</h2>
+<div class="grid" id="grid"></div>
 <div>🟩 disponible — 🟥 vendu</div>
 
 <script>
-// Ton Google Sheet classique publié (publié sur le web)
-const SHEET_ID = "1YwOg6ddIx7WuE75vKRRlhZGaSzGBVDLtzQeFRHKEIXc";
-const SHEET_URL = `https://opensheet.elk.sh/${SHEET_ID}/Feuille 1`;
+// Total de zines
+const totalZines = 200;
 
-async function loadGrid() {
-  try {
-    const res = await fetch(SHEET_URL);
-    const rows = await res.json();
+// Tableau des liens pour chaque zine (au départ seulement 2 liens, le reste = même lien par défaut)
+const links = [
+  "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e",
+  "https://alexandreadnane.payrexx.com/fr/pay?pid=d0fbc9e0"
+];
 
-    const grid = document.getElementById("grid");
-    grid.innerHTML = "";
+// Lien par défaut pour les autres zines
+const defaultLink = "https://alexandreadnane.payrexx.com/fr/pay?pid=9708a08e";
 
-    rows.forEach(r => {
-      const numero = r.numero || r[1];
-      const link = r.paylink || r[2];
-      const status = (r.status || r[3] || "").toLowerCase();
+// Indices des zines déjà vendus (exemple : 2ème zine vendu)
+const soldIndexes = [1]; // index 1 = 2ème zine
 
-      const cell = document.createElement("div");
-      cell.className = "cell " + (status === "vendu" ? "sold" : "avail");
-      cell.textContent = numero || "?"; // Affiche le numéro
-      if (status !== "vendu" && link) cell.onclick = () => window.open(link, "_blank");
+const grid = document.getElementById("grid");
 
-      grid.appendChild(cell);
-    });
-  } catch (err) {
-    console.error("Erreur en chargeant le Sheet :", err);
-    document.getElementById("grid").textContent = "Impossible de charger les données.";
+for (let i = 0; i < totalZines; i++) {
+  const numero = `${i+1}/200`;
+  const cell = document.createElement("div");
+  const isSold = soldIndexes.includes(i);
+  cell.className = "cell " + (isSold ? "sold" : "avail");
+  cell.textContent = numero;
+
+  if (!isSold) {
+    const link = links[i] || defaultLink;
+    cell.onclick = () => window.open(link, "_blank");
   }
-}
 
-// Chargement initial et rafraîchissement toutes les 8 secondes
-loadGrid();
-setInterval(loadGrid, 8000);
+  grid.appendChild(cell);
+}
 </script>
 </body>
 </html>
